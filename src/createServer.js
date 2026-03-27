@@ -55,6 +55,7 @@ function createServer() {
       pathname.slice(`${FILE_PREFIX}/`.length) || 'index.html';
     const pathParts = relativePath.split('/');
 
+    // Prevent requests from escaping the public directory.
     if (
       pathParts.some((part) => part === '..') ||
       relativePath.includes('\\')
