@@ -19,7 +19,7 @@ function createServer() {
   return http.createServer((request, response) => {
     const [pathname] = request.url.split('?');
 
-    if (pathname === FILE_PREFIX || pathname === `${FILE_PREFIX}/`) {
+    if (pathname === `${FILE_PREFIX}/`) {
       const indexPath = path.join(PUBLIC_DIR, 'index.html');
 
       fs.readFile(indexPath, (error, fileContent) => {
@@ -35,7 +35,7 @@ function createServer() {
       return;
     }
 
-    if (!pathname.startsWith(`${FILE_PREFIX}/`)) {
+    if (pathname === FILE_PREFIX) {
       sendText(
         response,
         200,
@@ -45,11 +45,16 @@ function createServer() {
       return;
     }
 
+    if (!pathname.startsWith(`${FILE_PREFIX}/`)) {
+      sendText(response, 400, 'Access outside public folder is forbidden');
+
+      return;
+    }
+
     const relativePath =
       pathname.slice(`${FILE_PREFIX}/`.length) || 'index.html';
     const pathParts = relativePath.split('/');
 
-    // Prevent requests from escaping the public directory.
     if (
       pathParts.some((part) => part === '..') ||
       relativePath.includes('\\')
